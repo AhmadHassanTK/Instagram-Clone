@@ -3,9 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:instagram/Responsive/MobileScreen.dart';
 import 'package:instagram/Responsive/WebScreen.dart';
-import 'package:instagram/Views/Home.dart';
-import 'package:instagram/Views/Login.dart';
-import 'package:instagram/Views/Register.dart';
 
 class Responsive extends StatefulWidget {
   const Responsive({super.key});
@@ -21,9 +18,9 @@ class _ResponsiveState extends State<Responsive> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth > 600) {
-            return Register();
+            return WebScreen();
           } else {
-            return Login();
+            return MobileScreen();
           }
         },
       ),

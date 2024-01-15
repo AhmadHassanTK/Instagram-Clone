@@ -2,8 +2,8 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/route_manager.dart';
 import 'package:instagram/Auth/Authprovider.dart';
+import 'package:instagram/Shared/Snackbar.dart';
 
 class FirebaseAuthprovider implements Authprovider {
   // final CloudServices cloudServices = CloudServices();
@@ -18,8 +18,11 @@ class FirebaseAuthprovider implements Authprovider {
   }
 
   @override
-  Future<UserCredential?> Register(
-      {required String email, required String password}) async {
+  Future<UserCredential?> Register({
+    required String email,
+    required String password,
+    required context,
+  }) async {
     try {
       final credential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -28,16 +31,11 @@ class FirebaseAuthprovider implements Authprovider {
       );
       return credential;
     } on FirebaseAuthException catch (e) {
-      Get.snackbar(
-        'Erorr',
-        e.code,
-        snackPosition: SnackPosition.BOTTOM,
-        borderColor: Colors.green,
-        colorText: Colors.white,
-      );
       if (e.code == 'weak-password') {
+        showSnackBar(context, 'The password provided is too weak.');
         print('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
+        showSnackBar(context, 'The account already exists for that email.');
         print('The account already exists for that email.');
       }
     }
@@ -45,7 +43,9 @@ class FirebaseAuthprovider implements Authprovider {
 
   @override
   Future<UserCredential?> SignIn(
-      {required String email, required String password}) async {
+      {required String email,
+      required String password,
+      required BuildContext context}) async {
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
@@ -53,6 +53,7 @@ class FirebaseAuthprovider implements Authprovider {
       );
       return credential;
     } on FirebaseAuthException catch (e) {
+      showSnackBar(context, e.code);
       print(e.code);
     }
   }

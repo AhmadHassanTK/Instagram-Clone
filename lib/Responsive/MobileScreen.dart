@@ -3,6 +3,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:instagram/Auth/Authservices.dart';
+import 'package:instagram/Auth/firebaseAuth.dart';
 import 'package:instagram/Views/AddPost.dart';
 import 'package:instagram/Views/Favorite.dart';
 import 'package:instagram/Views/Home.dart';
@@ -17,6 +19,8 @@ class MobileScreen extends StatefulWidget {
 }
 
 class _MobileScreenState extends State<MobileScreen> {
+  final Authservices authservices = Authservices(FirebaseAuthprovider());
+
   PageController controller = PageController();
   int currentpage = 0;
   @override
@@ -37,7 +41,9 @@ class _MobileScreenState extends State<MobileScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: IconButton(
-                onPressed: () {},
+                onPressed: () async {
+                  await authservices.SignOut();
+                },
                 icon: Icon(Icons.logout),
               ),
             ),

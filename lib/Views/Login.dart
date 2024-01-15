@@ -88,7 +88,7 @@ class _LoginState extends State<Login> {
                     ),
                     MyTextField(
                       validate: (value) {
-                        return value!.length < 8
+                        return value!.length <= 8
                             ? 'Enter at least 8 charactars'
                             : null;
                       },
@@ -117,16 +117,20 @@ class _LoginState extends State<Login> {
                           });
 
                           final user = await authservices.SignIn(
-                              email: _email.text, password: _password.text);
+                            email: _email.text,
+                            password: _password.text,
+                            context: context,
+                          );
 
-                          setState(() {
-                            buttonpressed = false;
-                          });
+                          if (!mounted) return;
                           if (user != null) {
                             Navigator.of(context).pushAndRemoveUntil(
                                 MaterialPageRoute(builder: (contxt) => Home()),
                                 (route) => false);
                           }
+                          setState(() {
+                            buttonpressed = false;
+                          });
                         }
                       },
                       child: buttonpressed

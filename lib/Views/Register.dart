@@ -1,12 +1,19 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last, use_build_context_synchronously, depend_on_referenced_packages, unnecessary_import
 
+import 'dart:math';
+import 'dart:typed_data';
+import 'dart:ui';
 import 'package:email_validator/email_validator.dart';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:instagram/Auth/Authservices.dart';
 import 'package:instagram/Auth/firebaseAuth.dart';
+import 'package:instagram/Cloud/CloudServices.dart';
+import 'package:instagram/Responsive/Responsive.dart';
 import 'package:instagram/Views/Login.dart';
 import 'package:instagram/Shared/MyTextField.dart';
+import 'package:path/path.dart' show basename;
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -20,12 +27,13 @@ class _RegisterState extends State<Register> {
   bool ispassword = true;
   bool registerpressed = false;
   bool passwordsuccess = false;
-
+  Uint8List? imgPath;
+  String? imgName;
   final TextEditingController _email = TextEditingController();
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _title = TextEditingController();
-  //final CloudServices cloudServices = CloudServices();
+  final CloudServices cloudServices = CloudServices();
   final Authservices authservices = Authservices(FirebaseAuthprovider());
 
   @override
@@ -36,6 +44,89 @@ class _RegisterState extends State<Register> {
     _username.dispose();
 
     super.dispose();
+  }
+
+  uploadImage2Screen(ImageSource source) async {
+    final pickedImg = await ImagePicker().pickImage(source: source);
+    try {
+      if (pickedImg != null) {
+        imgPath = await pickedImg.readAsBytes();
+        setState(() {
+          //  imgPath = File(pickedImg.path);
+          imgName = basename(pickedImg.path);
+          int random = Random().nextInt(9999999);
+          imgName = "$random$imgName";
+          print(imgName);
+        });
+      } else {
+        print("NO img selected");
+      }
+    } catch (e) {
+      print("Error => $e");
+    }
+
+    if (!mounted) return;
+    Navigator.pop(context);
+  }
+
+  showmodel() {
+    return showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(22),
+          height: 170,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  await uploadImage2Screen(ImageSource.camera);
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.camera,
+                      size: 30,
+                    ),
+                    SizedBox(
+                      width: 11,
+                    ),
+                    Text(
+                      "From Camera",
+                      style: TextStyle(fontSize: 20),
+                    )
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 22,
+              ),
+              GestureDetector(
+                onTap: () {
+                  uploadImage2Screen(ImageSource.gallery);
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.photo_outlined,
+                      size: 30,
+                    ),
+                    SizedBox(
+                      width: 11,
+                    ),
+                    Text(
+                      "From Gallery",
+                      style: TextStyle(fontSize: 20),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -59,6 +150,45 @@ class _RegisterState extends State<Register> {
               key: _key,
               child: Column(
                 children: [
+                  Container(
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color.fromARGB(125, 78, 91, 110),
+                    ),
+                    child: Stack(
+                      children: [
+                        imgPath == null
+                            ? CircleAvatar(
+                                backgroundColor:
+                                    Color.fromARGB(255, 225, 225, 225),
+                                radius: 71,
+                                // backgroundImage: AssetImage("assets/img/avatar.png"),
+                                backgroundImage:
+                                    AssetImage("assets/mobile/avatar.png"),
+                              )
+                            : CircleAvatar(
+                                backgroundColor:
+                                    Color.fromARGB(255, 225, 225, 225),
+                                radius: 71,
+                                // backgroundImage: AssetImage("assets/img/avatar.png"),
+                                backgroundImage: MemoryImage(imgPath!),
+                              ),
+                        Positioned(
+                          left: 99,
+                          bottom: -10,
+                          child: IconButton(
+                            onPressed: () {
+                              // uploadImage2Screen();
+                              showmodel();
+                            },
+                            icon: const Icon(Icons.add_a_photo),
+                            color: Color.fromARGB(255, 94, 115, 128),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   SizedBox(height: 30),
                   Text(
                     "Create your account",
@@ -129,27 +259,36 @@ class _RegisterState extends State<Register> {
                   SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () async {
-                      if (_key.currentState!.validate()) {
+                      if (_key.currentState!.validate() &&
+                          imgName != null &&
+                          imgPath != null) {
                         setState(() {
                           registerpressed = true;
                         });
                         final user = await authservices.Register(
-                            email: _email.text, password: _password.text);
+                          email: _email.text,
+                          password: _password.text,
+                          context: context,
+                        );
 
-                        // await cloudServices.cloudAdduser(
-                        //     username: _username.text,
-                        //     age: _age.text,
-                        //     email: _email.text,
-                        //     password: _password.text);
+                        await cloudServices.adduser(
+                          username: _username.text,
+                          title: _title.text,
+                          email: _email.text,
+                          password: _password.text,
+                          context: context,
+                          imgName: imgName,
+                          imgPath: imgPath,
+                        );
 
-                        // if (!mounted) return;
-                        // if (user != null) {
-                        //   await authservices.SendEmailVerfication();
-                        //   Navigator.of(context).pushAndRemoveUntil(
-                        //       MaterialPageRoute(
-                        //           builder: (context) => EmailVerfication()),
-                        //       (route) => false);
-                        // }
+                        if (!mounted) return;
+                        if (user != null) {
+                          //   await authservices.SendEmailVerfication();
+                          Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                  builder: (context) => Responsive()),
+                              (route) => false);
+                        }
 
                         setState(() {
                           registerpressed = false;
