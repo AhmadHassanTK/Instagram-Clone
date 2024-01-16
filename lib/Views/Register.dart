@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagram/Auth/Authservices.dart';
 import 'package:instagram/Auth/firebaseAuth.dart';
-import 'package:instagram/Cloud/CloudServices.dart';
+import 'package:instagram/Cloud/UserCloudServices.dart';
 import 'package:instagram/Responsive/Responsive.dart';
 import 'package:instagram/Views/Login.dart';
 import 'package:instagram/Shared/MyTextField.dart';
@@ -29,11 +29,13 @@ class _RegisterState extends State<Register> {
   bool passwordsuccess = false;
   Uint8List? imgPath;
   String? imgName;
+  List followers = [];
+  List following = [];
   final TextEditingController _email = TextEditingController();
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _title = TextEditingController();
-  final CloudServices cloudServices = CloudServices();
+  final UserCloudServices cloudServices = UserCloudServices();
   final Authservices authservices = Authservices(FirebaseAuthprovider());
 
   @override
@@ -279,6 +281,8 @@ class _RegisterState extends State<Register> {
                           context: context,
                           imgName: imgName,
                           imgPath: imgPath,
+                          followers: followers,
+                          following: following,
                         );
 
                         if (!mounted) return;

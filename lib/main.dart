@@ -4,10 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram/Provider/UserProvider.dart';
 import 'package:instagram/Responsive/Responsive.dart';
 import 'package:instagram/Shared/Snackbar.dart';
 import 'package:instagram/Views/Login.dart';
 import 'package:instagram/firebase_options.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,23 +35,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          print('Snapshot: $snapshot');
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return showSnackBar(context, 'Something went wrong');
-          } else if (snapshot.hasData && snapshot.data != null) {
-            return Responsive();
-          } else {
-            return const Login();
-          }
-        },
+    return ChangeNotifierProvider(
+      create: (context) {
+        return UserProvider();
+      },
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark(),
+        home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            print('Snapshot: $snapshot');
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return showSnackBar(context, 'Something went wrong');
+            } else if (snapshot.hasData && snapshot.data != null) {
+              return Responsive();
+            } else {
+              return const Login();
+            }
+          },
+        ),
       ),
     );
   }

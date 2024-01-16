@@ -1,6 +1,9 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:instagram/Auth/Authservices.dart';
+import 'package:instagram/Auth/firebaseAuth.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -10,11 +13,35 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final Authservices authservices = Authservices(FirebaseAuthprovider());
+
   @override
   Widget build(BuildContext context) {
     final screenwidth = MediaQuery.sizeOf(context).width;
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: SvgPicture.asset(
+            'assets/mobile/Instagram.svg',
+            height: 52,
+          ),
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.chat_bubble_outline_outlined),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: IconButton(
+                onPressed: () async {
+                  await authservices.SignOut();
+                },
+                icon: Icon(Icons.logout),
+              ),
+            ),
+          ],
+        ),
         backgroundColor:
             screenwidth > 600 ? Color.fromRGBO(32, 33, 36, 1) : Colors.black,
         body: Container(

@@ -7,10 +7,10 @@ import 'package:instagram/Shared/Snackbar.dart';
 import 'package:instagram/Storage/storage.dart';
 import 'package:instagram/models/UserModel.dart';
 
-class CloudServices {
-  static final CloudServices _shared = CloudServices._shareInstance();
-  CloudServices._shareInstance();
-  factory CloudServices() => _shared;
+class UserCloudServices {
+  static final UserCloudServices _shared = UserCloudServices._shareInstance();
+  UserCloudServices._shareInstance();
+  factory UserCloudServices() => _shared;
   final userdatabase = FirebaseFirestore.instance.collection('Users');
   final Storage storage = Storage();
 
@@ -22,6 +22,8 @@ class CloudServices {
     required BuildContext context,
     required Uint8List? imgPath,
     required String? imgName,
+    required List followers,
+    required List following,
   }) async {
     try {
       final url = await storage.getImgUrl(imgName: imgName, imgPath: imgPath);
@@ -32,6 +34,8 @@ class CloudServices {
         password: password,
         uid: FirebaseAuth.instance.currentUser!.uid,
         imageurl: url,
+        followers: followers,
+        following: following,
       ).toMap();
 
       await userdatabase

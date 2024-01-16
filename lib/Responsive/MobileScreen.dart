@@ -2,9 +2,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:instagram/Auth/Authservices.dart';
-import 'package:instagram/Auth/firebaseAuth.dart';
 import 'package:instagram/Views/AddPost.dart';
 import 'package:instagram/Views/Favorite.dart';
 import 'package:instagram/Views/Home.dart';
@@ -19,36 +16,12 @@ class MobileScreen extends StatefulWidget {
 }
 
 class _MobileScreenState extends State<MobileScreen> {
-  final Authservices authservices = Authservices(FirebaseAuthprovider());
-
-  PageController controller = PageController();
+  PageController controller = PageController(initialPage: 2);
   int currentpage = 0;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          title: SvgPicture.asset(
-            'assets/mobile/Instagram.svg',
-            height: 52,
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.chat_bubble_outline_outlined),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: IconButton(
-                onPressed: () async {
-                  await authservices.SignOut();
-                },
-                icon: Icon(Icons.logout),
-              ),
-            ),
-          ],
-        ),
         bottomNavigationBar: CupertinoTabBar(
           backgroundColor: Colors.black,
           onTap: (value) {

@@ -7,6 +7,8 @@ class UserModel {
   final String password;
   final String uid;
   final String imageurl;
+  final List? followers;
+  final List? following;
 
   UserModel({
     required this.title,
@@ -15,6 +17,8 @@ class UserModel {
     required this.password,
     required this.uid,
     required this.imageurl,
+    required this.followers,
+    required this.following,
   });
 
   Map<String, dynamic> toMap() {
@@ -24,6 +28,8 @@ class UserModel {
       'email': email,
       'password': password,
       'imageurl': imageurl,
+      'followers': followers,
+      'following': following,
     };
   }
 
@@ -33,5 +39,7 @@ class UserModel {
         password = snapshot.data()!['password'],
         title = snapshot.data()!['title'],
         uid = snapshot.id,
-        username = snapshot.data()!['username'];
+        username = snapshot.data()!['username'],
+        followers = snapshot.data()!["followers"],
+        following = snapshot.data()!['following'];
 }
