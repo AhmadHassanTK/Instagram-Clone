@@ -21,7 +21,6 @@ class PostCloudServices {
     required BuildContext context,
     required Uint8List? imgPath,
     required String? imgName,
-    //required List likes,
     required String profileImg,
   }) async {
     try {
@@ -30,7 +29,7 @@ class PostCloudServices {
       final post = UserPostModel(
         username: username,
         description: description,
-        postdate: DateTime.now(),
+        postdate: DateTime.now().toString(),
         postImg: url,
         profileImg: profileImg,
         postID: id,
@@ -56,5 +55,22 @@ class PostCloudServices {
         .doc(userid)
         .get()
         .then((value) => UserPostModel.fromfirebase(value));
+  }
+
+  Stream<Iterable<UserPostModel>> profileData({required String owneruserid}) =>
+      postsdatabase.snapshots(includeMetadataChanges: true).map((event) => event
+          .docs
+          .map((doc) => UserPostModel.fromfirebase(doc))
+          .where((postmodel) => postmodel.userID == owneruserid));
+
+  Stream<Iterable<UserPostModel>> homedata() => postsdatabase
+      .snapshots(includeMetadataChanges: true)
+      .map((event) => event.docs.map((doc) => UserPostModel.fromfirebase(doc)));
+
+  Future<QuerySnapshot<Map<String, dynamic>>> numberofposts(
+      {required userid}) async {
+    final data = await postsdatabase.where('userID', isEqualTo: userid).get();
+
+    return data;
   }
 }

@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class UserPostModel {
-  final String username;
-  final String description;
-  final DateTime postdate;
-  final String profileImg;
-  final String postImg;
-  final String postID;
-  final String userID;
-  final List likes;
+  String username;
+  String description;
+  String postdate;
+  String profileImg;
+  String postImg;
+  String postID;
+  String userID;
+  List likes;
 
   UserPostModel({
     required this.username,
@@ -37,7 +38,8 @@ class UserPostModel {
   UserPostModel.fromfirebase(DocumentSnapshot<Map<String, dynamic>> snapshot)
       : username = snapshot.data()!['username'],
         description = snapshot.data()!['description'],
-        postdate = snapshot.data()!['postdate'],
+        postdate = DateFormat('yMMMd')
+            .format(DateTime.parse(snapshot.data()!['postdate'])),
         postImg = snapshot.data()!['postImg'],
         postID = snapshot.id,
         userID = snapshot.data()!['userID'],

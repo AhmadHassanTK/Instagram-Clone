@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram/Provider/GuestProvider.dart';
 import 'package:instagram/Provider/UserProvider.dart';
 import 'package:instagram/Responsive/Responsive.dart';
 import 'package:instagram/Shared/Snackbar.dart';
@@ -35,10 +36,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) {
-        return UserProvider();
-      },
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) {
+            return UserProvider();
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (context) {
+            return GuestProvider();
+          },
+        ),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData.dark(),

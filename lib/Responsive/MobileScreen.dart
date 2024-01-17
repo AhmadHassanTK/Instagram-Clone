@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram/Views/AddPost.dart';
@@ -16,7 +17,7 @@ class MobileScreen extends StatefulWidget {
 }
 
 class _MobileScreenState extends State<MobileScreen> {
-  PageController controller = PageController(initialPage: 2);
+  PageController controller = PageController(initialPage: 0);
   int currentpage = 0;
   @override
   Widget build(BuildContext context) {
@@ -77,7 +78,7 @@ class _MobileScreenState extends State<MobileScreen> {
             Search(),
             AddPost(),
             Favorite(),
-            Profile(),
+            Profile(userid: FirebaseAuth.instance.currentUser!.uid),
           ],
         ),
       ),

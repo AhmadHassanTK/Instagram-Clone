@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram/Cloud/PostCloudServices.dart';
 import 'package:instagram/Shared/Snackbar.dart';
 import 'package:instagram/Storage/storage.dart';
 import 'package:instagram/models/UserModel.dart';
@@ -13,6 +14,7 @@ class UserCloudServices {
   factory UserCloudServices() => _shared;
   final userdatabase = FirebaseFirestore.instance.collection('Users');
   final Storage storage = Storage();
+  final PostCloudServices postCloudServices = PostCloudServices();
 
   Future<void> adduser({
     required String username,
@@ -27,6 +29,7 @@ class UserCloudServices {
   }) async {
     try {
       final url = await storage.getImgUrl(imgName: imgName, imgPath: imgPath);
+
       final user = UserModel(
         title: title,
         username: username,
@@ -56,5 +59,16 @@ class UserCloudServices {
         .doc(userid)
         .get()
         .then((value) => UserModel.fromfirebase(value));
+  }
+
+  Future<Iterable<UserModel>> Searchedusers({
+    required String username,
+  }) async {
+    final data = await userdatabase
+        .where('username', isEqualTo: username)
+        .get()
+        .then((value) => value.docs.map((e) => UserModel.fromfirebase(e)));
+
+    return data;
   }
 }

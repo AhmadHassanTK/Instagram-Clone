@@ -14,9 +14,15 @@ class Responsive extends StatefulWidget {
 }
 
 class _ResponsiveState extends State<Responsive> {
+  bool loading = false;
   loadingUserData() async {
     UserProvider userProvider = Provider.of(context, listen: false);
+
     await userProvider.userData();
+
+    setState(() {
+      loading = true;
+    });
   }
 
   @override
@@ -27,16 +33,23 @@ class _ResponsiveState extends State<Responsive> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth > 600) {
-            return WebScreen();
-          } else {
-            return MobileScreen();
-          }
-        },
-      ),
-    );
+    return loading == true
+        ? Scaffold(
+            body: LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth > 600) {
+                  return WebScreen();
+                } else {
+                  return MobileScreen();
+                }
+              },
+            ),
+          )
+        : Scaffold(
+            body: Center(
+                child: CircularProgressIndicator(
+              color: Colors.white,
+            )),
+          );
   }
 }
