@@ -19,17 +19,33 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  final UserCloudServices cloudServices = UserCloudServices();
+  final UserCloudServices usercloudServices = UserCloudServices();
   final PostCloudServices postCloudServices = PostCloudServices();
   int posts = 0;
+  int followers = 0;
+  int following = 0;
   bool loading = false;
+  bool follow = false;
+
   loaddata() async {
     setState(() {
       loading = true;
     });
+
+    final guestfollowers =
+        await usercloudServices.guestfollowers(userid: widget.userid);
+
+    guestfollowers.contains(FirebaseAuth.instance.currentUser!.uid)
+        ? follow = true
+        : follow = false;
     final data = await postCloudServices.numberofposts(userid: widget.userid);
     posts = data.docs.length;
 
+    followers =
+        await usercloudServices.numberoffollowers(userid: widget.userid);
+
+    following =
+        await usercloudServices.numberoffollowings(userid: widget.userid);
     GuestProvider guestProvider = Provider.of(context, listen: false);
 
     await guestProvider.GuestData(userid: widget.userid);
@@ -53,6 +69,7 @@ class _ProfileState extends State<Profile> {
     final model = widget.userid == FirebaseAuth.instance.currentUser!.uid
         ? usermodel
         : guestmodel;
+
     return SafeArea(
         child: model != null && loading == false
             ? Scaffold(
@@ -107,7 +124,7 @@ class _ProfileState extends State<Profile> {
                                     : 30),
                             Column(
                               children: [
-                                Text('${model.followers?.length}'),
+                                Text('${followers}'),
                                 SizedBox(height: 8),
                                 Text(
                                   'Followers',
@@ -124,7 +141,7 @@ class _ProfileState extends State<Profile> {
                                     : 30),
                             Column(
                               children: [
-                                Text('${model.following?.length}'),
+                                Text('${following}'),
                                 SizedBox(height: 8),
                                 Text(
                                   'Following',
@@ -231,44 +248,93 @@ class _ProfileState extends State<Profile> {
                               ],
                             ),
                           )
-                        : Padding(
-                            padding:
-                                const EdgeInsets.only(left: 100, right: 100),
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                padding: MaterialStatePropertyAll(
-                                  EdgeInsets.symmetric(
-                                    vertical: screenwidth > 600 ? 15 : 0,
-                                    horizontal: screenwidth > 600 ? 20 : 0,
+                        : follow == false
+                            ? Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 100, right: 100),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    padding: MaterialStatePropertyAll(
+                                      EdgeInsets.symmetric(
+                                        vertical: screenwidth > 600 ? 15 : 0,
+                                        horizontal: screenwidth > 600 ? 20 : 0,
+                                      ),
+                                    ),
+                                    shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    backgroundColor: MaterialStateProperty.all(
+                                      Colors.blue,
+                                    ),
+                                    alignment: Alignment.center,
+                                  ),
+                                  onPressed: () async {
+                                    await usercloudServices.addfollowers(
+                                        context: context,
+                                        followerid: model.uid);
+
+                                    setState(() {
+                                      followers++;
+                                      follow = true;
+                                    });
+                                  },
+                                  child: Center(
+                                    child: Text(
+                                      'Follow',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 100, right: 100),
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    padding: MaterialStatePropertyAll(
+                                      EdgeInsets.symmetric(
+                                        vertical: screenwidth > 600 ? 15 : 0,
+                                        horizontal: screenwidth > 600 ? 20 : 0,
+                                      ),
+                                    ),
+                                    shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    backgroundColor: MaterialStateProperty.all(
+                                      Colors.red,
+                                    ),
+                                    alignment: Alignment.center,
+                                  ),
+                                  onPressed: () async {
+                                    await usercloudServices.removefollowers(
+                                        context: context,
+                                        followerid: model.uid);
+                                    setState(() {
+                                      followers--;
+                                      follow = false;
+                                    });
+                                  },
+                                  child: Center(
+                                    child: Text(
+                                      'unfollow',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                backgroundColor: MaterialStateProperty.all(
-                                  Colors.blue,
-                                ),
-                                alignment: Alignment.center,
                               ),
-                              onPressed: () {},
-                              child: Center(
-                                child: Text(
-                                  'Follow',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
                     SizedBox(height: 10),
                     Divider(
                       thickness: screenwidth > 600 ? 0.05 : 0.20,
                       color: Colors.white,
                     ),
-                    // SizedBox(height: 20),
                     StreamBuilder<Iterable<UserPostModel>>(
                       stream: postCloudServices.profileData(
                           owneruserid: widget.userid),

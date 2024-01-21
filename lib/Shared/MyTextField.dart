@@ -37,6 +37,7 @@ class MyTextField extends StatelessWidget {
       autofocus: autofocusflag,
       autocorrect: false,
       decoration: InputDecoration(
+          fillColor: Colors.grey[800],
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),

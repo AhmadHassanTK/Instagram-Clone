@@ -57,20 +57,56 @@ class PostCloudServices {
         .then((value) => UserPostModel.fromfirebase(value));
   }
 
+  Future<void> deletepost({
+    required postid,
+  }) async {
+    await postsdatabase.doc(postid).delete();
+  }
+
   Stream<Iterable<UserPostModel>> profileData({required String owneruserid}) =>
       postsdatabase.snapshots(includeMetadataChanges: true).map((event) => event
           .docs
           .map((doc) => UserPostModel.fromfirebase(doc))
           .where((postmodel) => postmodel.userID == owneruserid));
 
-  Stream<Iterable<UserPostModel>> homedata() => postsdatabase
-      .snapshots(includeMetadataChanges: true)
-      .map((event) => event.docs.map((doc) => UserPostModel.fromfirebase(doc)));
+  Stream<Iterable<UserPostModel>> homedata({required BuildContext context}) {
+    // final usermodel = Provider.of<UserProvider>(context).getUsermodel;
+
+    return postsdatabase.snapshots(includeMetadataChanges: true).map(
+        (event) => event.docs.map((doc) => UserPostModel.fromfirebase(doc)));
+  }
 
   Future<QuerySnapshot<Map<String, dynamic>>> numberofposts(
       {required userid}) async {
     final data = await postsdatabase.where('userID', isEqualTo: userid).get();
 
     return data;
+  }
+
+  Future<void> addlike({
+    required BuildContext context,
+    required String postid,
+  }) async {
+    try {
+      await postsdatabase.doc(postid).update({
+        'likes': FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
+      });
+    } catch (e) {
+      showSnackBar(context, 'Failed to add the follower');
+    }
+  }
+
+  Future<void> removelike({
+    required BuildContext context,
+    required String postid,
+  }) async {
+    try {
+      await postsdatabase.doc(postid).update({
+        'likes':
+            FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
+      });
+    } catch (e) {
+      showSnackBar(context, 'Failed to add the follower');
+    }
   }
 }

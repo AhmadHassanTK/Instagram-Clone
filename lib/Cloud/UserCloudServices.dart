@@ -48,8 +48,6 @@ class UserCloudServices {
     } on FirebaseAuthException catch (e) {
       showSnackBar(context, e.code);
     }
-
-    showSnackBar(context, 'Done');
   }
 
   Future<UserModel> getdata({
@@ -70,5 +68,68 @@ class UserCloudServices {
         .then((value) => value.docs.map((e) => UserModel.fromfirebase(e)));
 
     return data;
+  }
+
+  Future<List> guestfollowers({required userid}) async {
+    final data = await userdatabase
+        .doc(userid)
+        .get()
+        .then((value) => UserModel.fromfirebase(value));
+
+    return data.followers!;
+  }
+
+  Future<int> numberoffollowers({required userid}) async {
+    final data = await userdatabase
+        .doc(userid)
+        .get()
+        .then((value) => UserModel.fromfirebase(value));
+
+    return data.followers!.length;
+  }
+
+  Future<int> numberoffollowings({required userid}) async {
+    final data = await userdatabase
+        .doc(userid)
+        .get()
+        .then((value) => UserModel.fromfirebase(value));
+
+    return data.following!.length;
+  }
+
+  Future<void> addfollowers({
+    required BuildContext context,
+    required String followerid,
+  }) async {
+    try {
+      await userdatabase.doc(FirebaseAuth.instance.currentUser!.uid).update({
+        'following': FieldValue.arrayUnion([followerid])
+      });
+
+      await userdatabase.doc(followerid).update({
+        'followers':
+            FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
+      });
+    } catch (e) {
+      showSnackBar(context, 'Failed to add the follower');
+    }
+  }
+
+  Future<void> removefollowers({
+    required BuildContext context,
+    required String followerid,
+  }) async {
+    try {
+      await userdatabase.doc(FirebaseAuth.instance.currentUser!.uid).update({
+        'following': FieldValue.arrayRemove([followerid])
+      });
+
+      await userdatabase.doc(followerid).update({
+        'followers':
+            FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
+      });
+    } catch (e) {
+      showSnackBar(context, 'Failed to add the follower');
+    }
   }
 }
